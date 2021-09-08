@@ -11,7 +11,7 @@ void Leaderboard();
 void Settings();
 
 void AddTooHighScoreList(int, std::vector<int>&);
-void SetDifficulty(int, int);
+void SetDifficulty(int);
 int GetRandomInterger();
 
 int guessFrom = 1;
