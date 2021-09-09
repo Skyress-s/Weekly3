@@ -6,37 +6,37 @@
 void ClearCin();
 
 void Menu();
-void MainGameLoop(int);
+void MainGameLoop();
 void Leaderboard();
 void Settings();
 
 void AddTooHighScoreList(int, std::vector<int>&);
 void SetDifficulty(int);
+void SetCustomDifficulty();
 int GetRandomInterger();
 
 int guessFrom = 1;
 int guessTo = 5;
 int currentDiff{ 0 };
 
-std::vector<int> highscoreList{};
+std::vector<std::vector<int>> highscoreList{ {} };
 
 std::mt19937 mersenne{ static_cast<std::mt19937::result_type>(std::time(nullptr)) };
 std::uniform_int_distribution<> die{ guessFrom, guessTo };
 
 int main() {
-	// independent variables
-
-
+	//give the highscore vector 3 inner vectros for different highscore settings
+	highscoreList.push_back(std::vector<int>{});
+	highscoreList.push_back(std::vector<int>{});
+	highscoreList.push_back(std::vector<int>{});
+	highscoreList.push_back(std::vector<int>{});
 
 
 	Menu();
 
-	
-
-	
-
 	return 0;
 }
+
 void Menu() {
 
 	
@@ -44,18 +44,15 @@ void Menu() {
 	{
 		system("cls"); // clears the past info that was on screen
 
-		// Generates number to geuss
-		int numToGuess = GetRandomInterger();
-		int guessCounter{};
 
 		std::cout << "Hello! Welcome to this guessing game!" << std::endl;
-		std::cout << "_____________________________________" << std::endl;
+		std::cout << "_____________________________________" << std::endl << std::endl;
 
 		std::cout << "Please select from the menu:" << std::endl;
 		std::cout << "1. Start game" << std::endl;
 		std::cout << "2. See leaderboards" << std::endl;
 		std::cout << "3. Settings " << std::endl;
-		std::cout << "q. Quit game :( " << std::endl;
+		std::cout << "q. Quit game :( " << std::endl << std::endl;
 		std::cout << "Input : ";
 		std::string ans{};
 		std::cin >> ans;
@@ -78,7 +75,7 @@ void Menu() {
 		switch (tolower(ansChar))
 		{
 		case '1':
-			MainGameLoop(numToGuess);
+			MainGameLoop();
 			break;
 
 
@@ -102,7 +99,9 @@ void Menu() {
 
 
 
-void MainGameLoop(int a_numToGuess) {
+void MainGameLoop() {
+
+	int a_numToGuess = GetRandomInterger();
 	int guessCounter{};
 	while (true)	//main ingame loop
 	{
@@ -126,16 +125,16 @@ void MainGameLoop(int a_numToGuess) {
 			std::cout << "Correct!" << std::endl;
 			std::cout << "You guessed : " << guessCounter << " times until you got it right!" << std::endl;
 			//displays in you beat the last score
-			if (highscoreList.size() > 0)
+			if (highscoreList[currentDiff].size() > 0)
 			{
-				if (guessCounter < highscoreList[0])
+				if (guessCounter < highscoreList[currentDiff][0])
 				{
-					std::cout << "You beat the new highscore! The previous was " << highscoreList[0] << ", you your score was " << guessCounter << "!!!" << std::endl;
+					std::cout << "You beat the new highscore! The previous was " << highscoreList[currentDiff][0] << ", you your score was " << guessCounter << "!!!" << std::endl;
 				}
 			}
 
 
-			AddTooHighScoreList(guessCounter, highscoreList);
+			AddTooHighScoreList(guessCounter, highscoreList[currentDiff]);
 			system("pause");
 			break;
 
@@ -144,12 +143,39 @@ void MainGameLoop(int a_numToGuess) {
 }
 
 void Leaderboard() {
-	std::cout << "Current highscore list : " << std::endl << std::endl;
-	//std::cout << highscoreList.size() << std::endl;
-	for (int i = 0; i < highscoreList.size(); i++)
+	std::cout << "Current highscore for ";
+	//prints the current difficulty mode
+	std::string currentDiffString{};
+	switch (currentDiff)
 	{
-		std::cout << highscoreList[i] << std::endl;
+	case 0:
+		currentDiffString = "Easy";
+		break;
+	case 1:
+		currentDiffString = "Medium";
+		break;
+	case 2:
+		currentDiffString = "Hard";
+		break;
+	case 3:
+		currentDiffString = "Custom";
+		break;
+
+	default:
+		currentDiffString = "NOT DEFINED";
+		break;
 	}
+
+	std::cout << currentDiffString << " difficulty mode : " << std::endl;
+	std::cout << "_______________________" << std::endl;
+
+	
+	for (int i = 0; i < highscoreList[currentDiff].size(); i++)
+	{
+		std::cout << highscoreList[currentDiff][i] << std::endl;
+	}
+
+	std::cout << "_______________________" << std::endl << std::endl;
 
 	system("pause");
 }
@@ -162,8 +188,10 @@ void Settings() {
 		std::cout << "1. Easy     (1-5) " << std::endl;
 		std::cout << "2. Medium   (1-10) " << std::endl;
 		std::cout << "3. Hard     (1-30)" << std::endl;
+		std::cout << "4. Custom " << std::endl;
+		std::cout << "q. Return to Menu" << std::endl << std::endl;
 		std::cout << "Input : ";
-		int answer{};
+		char answer{};
 		std::cin >> answer;
 		ClearCin();
 		system("cls");
@@ -171,16 +199,23 @@ void Settings() {
 		exitSettings = true;
 		switch (answer)
 		{
-		case 1: 
+		case '1':
 			SetDifficulty(1);
 			break;
 
-		case 2:
+		case '2':
 			SetDifficulty(2);
 			break;
 
-		case 3:
+		case '3':
 			SetDifficulty(3);
+			break;
+
+		case '4':
+			SetCustomDifficulty();
+			break;
+
+		case 'q':
 			break;
 
 		default:
@@ -191,6 +226,33 @@ void Settings() {
 
 
 	}
+}
+
+void SetCustomDifficulty() {
+	while (true)
+	{
+
+		std::cout << "Please select from what interger to guess from, then too" << std::endl;
+
+		int from{};
+		int too{};
+		std::cout << " From : ";
+		std::cin >> from;
+		std::cout << " Too : ";
+		std::cin >> too;
+
+		if (from < too)
+		{
+			currentDiff = 3;
+			guessFrom = from;
+			guessTo = too;
+			break;
+		}
+
+		
+	}
+
+
 }
 
 void SetDifficulty(int diff) {
