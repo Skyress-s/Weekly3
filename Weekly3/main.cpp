@@ -3,34 +3,40 @@
 #include <Windows.h>
 #include <vector>
 
+//initializing all the methods so we can use them independent of what order they are defiined in
+// the definitions of the mehods are further down the page
 void ClearCin();
 
+//menus/scenes that the player sees
 void Menu();
 void MainGameLoop();
 void Leaderboard();
 void Settings();
+void SetCustomDifficulty();
 
+//functions that are non visual
 void AddTooHighScoreList(int, std::vector<int>&);
 void SetDifficulty(int);
-void SetCustomDifficulty();
 int GetRandomInterger();
 
+//numbers to guess from and to, they are in global scope becouse its a small project
 int guessFrom = 1;
 int guessTo = 5;
 int currentDiff{ 0 };
 
+// stores highscores, one vector per difficulty
 std::vector<std::vector<int>> highscoreList{ {} };
 
+//setting the random number seed to the time -> get a diffrent seed for each run of the program
 std::mt19937 mersenne{ static_cast<std::mt19937::result_type>(std::time(nullptr)) };
-std::uniform_int_distribution<> die{ guessFrom, guessTo };
+
 
 int main() {
-	//give the highscore vector 3 inner vectros for different highscore settings
+	//give the highscore vector 4 inner vectors for the different highscore settings
 	highscoreList.push_back(std::vector<int>{});
 	highscoreList.push_back(std::vector<int>{});
 	highscoreList.push_back(std::vector<int>{});
 	highscoreList.push_back(std::vector<int>{});
-
 
 	Menu();
 
@@ -40,14 +46,13 @@ int main() {
 void Menu() {
 
 	
-	while (true) // reset Menu
+	while (true) // Menu loop
 	{
 		system("cls"); // clears the past info that was on screen
 
-
+		//menu scene/text
 		std::cout << "Hello! Welcome to this guessing game!" << std::endl;
 		std::cout << "_____________________________________" << std::endl << std::endl;
-
 		std::cout << "Please select from the menu:" << std::endl;
 		std::cout << "1. Start game" << std::endl;
 		std::cout << "2. See leaderboards" << std::endl;
@@ -60,7 +65,7 @@ void Menu() {
 		system("cls");
 
 
-		char ansChar{};
+		char ansChar{};	 //writes to string, so that if the player types more than one letter, it wont work
 		if (ans.size() == 1)
 		{
 			ansChar = ans[0];
@@ -71,7 +76,7 @@ void Menu() {
 		}
 
 		
-
+		//diffrent scenes to travel to, or quit
 		switch (tolower(ansChar))
 		{
 		case '1':
@@ -108,14 +113,16 @@ void MainGameLoop() {
 		std::cout << "Please guess a number form " << guessFrom << " to " << guessTo << std::endl;
 		int answer{};
 		std::cin >> answer;
+
 		system("cls");
 		guessCounter++;
+
 		if (answer > a_numToGuess)	// if the player guessed too high
 		{
 			std::cout << "Ouch! Too high, try again!" << std::endl;
 
 		}
-		else if (answer < a_numToGuess)	// if the player guessed to low
+		else if (answer < a_numToGuess)	// if the player guessed too low
 		{
 			std::cout << "Auwwie! Too low, try again!" << std::endl;
 
@@ -124,8 +131,9 @@ void MainGameLoop() {
 		{
 			std::cout << "Correct!" << std::endl;
 			std::cout << "You guessed : " << guessCounter << " times until you got it right!" << std::endl;
-			//displays in you beat the last score
-			if (highscoreList[currentDiff].size() > 0)
+
+			//displays if you beat the last score
+			if (highscoreList[currentDiff].size() > 0)	//checks if the you have a highscore to compare too
 			{
 				if (guessCounter < highscoreList[currentDiff][0])
 				{
@@ -133,17 +141,20 @@ void MainGameLoop() {
 				}
 			}
 
-
+			//adds the score you got to the appropiate place in the vector in acending order
 			AddTooHighScoreList(guessCounter, highscoreList[currentDiff]);
 			system("pause");
-			break;
+			
+			break; // exits the main game loop
 
 		}
 	}
 }
 
-void Leaderboard() {
+void Leaderboard() { // menu for viewing the leaderboards
 	std::cout << "Current highscore for ";
+
+
 	//prints the current difficulty mode
 	std::string currentDiffString{};
 	switch (currentDiff)
@@ -169,7 +180,7 @@ void Leaderboard() {
 	std::cout << currentDiffString << " difficulty mode : " << std::endl;
 	std::cout << "_______________________" << std::endl;
 
-	
+	//prints the acutal scores
 	for (int i = 0; i < highscoreList[currentDiff].size(); i++)
 	{
 		std::cout << highscoreList[currentDiff][i] << std::endl;
@@ -194,6 +205,7 @@ void Settings() {
 		char answer{};
 		std::cin >> answer;
 		ClearCin();
+
 		system("cls");
 
 		exitSettings = true;
@@ -255,7 +267,7 @@ void SetCustomDifficulty() {
 
 }
 
-void SetDifficulty(int diff) {
+void SetDifficulty(int diff) { //sets the difficulty
 	switch (diff)
 	{
 	case 1:
@@ -280,12 +292,12 @@ void SetDifficulty(int diff) {
 	}
 }
 
-int GetRandomInterger() {
+int GetRandomInterger() { // gets a random int using the method we got from learncpp
 	std::uniform_int_distribution<> die{ guessFrom, guessTo };
 	return die(mersenne);
 }
 
-void AddTooHighScoreList(int score, std::vector<int>& _highscoreList) {
+void AddTooHighScoreList(int score, std::vector<int>& _highscoreList) { // adds the score you got to the vector in ascening order
 	
 	if (_highscoreList.size() == 0) { 
 		_highscoreList.push_back(score); 
@@ -309,7 +321,7 @@ void AddTooHighScoreList(int score, std::vector<int>& _highscoreList) {
 }
 
 
-void ClearCin() {
-	std::cin.clear();
-	std::cin.ignore(32767, '\n');
+void ClearCin() { // clears the cin buffer for:
+	std::cin.clear(); // errors
+	std::cin.ignore(32767, '\n'); // leftover text
 }
