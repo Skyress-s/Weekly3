@@ -287,6 +287,7 @@ void SetDifficulty(int diff) { //sets the difficulty
 		guessTo = 30;
 		currentDiff = 2;
 		break;
+
 	default:
 		break;
 	}
